@@ -3,11 +3,54 @@
 #include <fstream>
 #include <filesystem>
 #include <vector>
+#include <cctype>
 
 struct Lexer{
 	std::string::iterator source;
 	std::vector<std::string> tokens;
 };
+
+//skipping all lines that start with '#' character
+//meaning that after encountering '#' every other character will be ignored
+//until a new line character is encountered the the function returns
+void skip_commented_line(std::string& s, std::string::iterator& si){
+	std::cout << "entered skip_commented_line function" << std::endl;
+	while(si != s.end()){
+		if(*si == '\n'){
+			return;
+		}
+		si++;
+	}
+}
+
+void skip_whitespace(std::string& s, std::string::iterator& si){
+	std::cout << "entered skip_whitespace function" << std::endl;
+	while(si != s.end()){
+		if(std::isspace(*si)){
+			return;
+		}
+		si++;
+	}
+}
+
+std::string tokenize(std::string& s, std::string::iterator& si){
+//void tokenize(){
+	std::string temp;
+	temp.reserve(200);
+	while(si != s.end()){
+		if(*si == '#'){
+			std::cout << "how does temp look?: " << temp << std::endl;
+			return temp;	
+		}
+		if(std::isspace(*si)){
+			std::cout << "how does temp look?: " << temp << std::endl;
+			return temp;	
+		}
+		temp.push_back(*si);
+		si++;
+	}
+	return s;
+}
 
 int main(){
 	std::filesystem::path file_path = "rules.rules";
@@ -26,30 +69,14 @@ int main(){
 	std::string::iterator si = std::begin(s);
 	//printing and incrementing the string iterator until it reaches the end of string
 	while(si != s.end()){
-		std::cout << *si << std::endl;
+		if(*si == '#'){
+			skip_commented_line(s, si);
+		}else if(std::isspace(*si)){
+			skip_whitespace(s, si);
+		}else{
+			tokenize(s, si);
+		}
 		si++;
 	}
-
-//	std::cout << "first char?? first line??: " << *si << std::endl;
-//	std::cout << "every new dereference of the operator gives a new char??: " << *si << std::endl;
-//	std::cout << "do you need to increment the iterator as an array subscript??" << std::endl;
-//	si++;
-//	std::cout << "what about now??: " << *si << std::endl;
-//	std::cout << "you can also use the array subscript operator with iterator, checking the [0] element should return the element currently pointed by si, so let's print si[1]: " << si[1] << std::endl;
-//	std::cout << "is it safe to assume that if file is 1384 bytes then we can subscript si[1381]??: " << si[1381] << std::endl;
-//	std::cout << "you should check safely that the next character si[1] is not the end of the string" << std::endl;
-//	if(si + 1383 == s.end()){
-//		std::cout << "end of string reached" << std::endl;
-//	}else{
-//		std::cout << "si[1382] is not the end string" << std::endl;
-//	}
-	//std::getline(file_reading_stream, s);
-	//while(std::getline(file_reading_stream, s)){
-		//std::cout << "line [ " << i << "]: " << s << std::endl;
-		//i++;
-	//}
-	//std::string s;
-	//std::getline(file_reading_stream, s);
-	//std::cin >> s;
 	return 0;
 }
